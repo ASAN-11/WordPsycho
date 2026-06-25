@@ -18,7 +18,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:.9rem 1.5rem;background:rgba(8,8,16,0.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem}
 .nav-logo{font-size:1.35rem;font-weight:700;background:var(--grad-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.5px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;gap:.5rem}
-.nav-logo span{-webkit-text-fill-color:var(--text-primary); margin-left: -8px;}
+.nav-logo span{-webkit-text-fill-color:var(--text-primary)}
 .nav-right{display:flex;align-items:center;gap:.75rem}
 .nav-stat{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--text-secondary);padding:.35rem .75rem;background:var(--bg-card);border:1px solid var(--border);border-radius:100px}
 .nav-stat .val{font-weight:700;color:var(--accent-amber);font-family:var(--font-mono)}
@@ -201,9 +201,67 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .p-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem;text-align:center}
 .ps-val{font-size:1.8rem;font-weight:700;font-family:var(--font-mono);margin-bottom:.2rem}
 .ps-lbl{font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
-.streak-chart{display:flex;gap:3px;align-items:flex-end;height:55px;margin-bottom:2rem}
-.streak-bar{flex:1;border-radius:3px 3px 0 0;background:rgba(139,92,246,0.25);min-height:4px;transition:var(--transition)}
-.streak-bar.active{background:var(--accent-purple)}
+/* ── 365-day LeetCode-style activity calendar ── */
+.activity-section{margin-bottom:2rem}
+.activity-top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.65rem}
+.activity-title{font-size:1rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1.5px}
+.activity-controls{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.activity-streak-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:700;color:var(--accent-amber);background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);padding:.22rem .65rem;border-radius:100px}
+.activity-streak-badge svg{width:12px;height:12px;stroke:var(--accent-amber);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* year tab pills */
+.year-tabs{display:flex;gap:.35rem;flex-wrap:wrap}
+.year-tab{padding:.25rem .72rem;font-size:.75rem;font-weight:600;font-family:var(--font-mono);color:var(--text-muted);background:var(--bg-card);border:1px solid var(--border);border-radius:100px;cursor:pointer;transition:var(--transition);user-select:none}
+.year-tab:hover{color:var(--text-primary);border-color:rgba(139,92,246,0.4)}
+.year-tab.active{color:white;background:var(--accent-purple);border-color:var(--accent-purple);box-shadow:0 0 12px rgba(139,92,246,0.35)}
+/* grid card */
+.activity-grid-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.2rem 1rem;overflow-x:auto;scrollbar-width:thin;scrollbar-color:rgba(139,92,246,0.3) transparent}
+.activity-grid-card::-webkit-scrollbar{height:3px}
+.activity-grid-card::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.35);border-radius:100px}
+.activity-grid-inner{min-width:680px}
+/* month labels row */
+.activity-months-row{display:flex;margin-bottom:.45rem;padding-left:27px}
+.activity-month-lbl{font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;overflow:hidden}
+/* grid body */
+.activity-body{display:flex;gap:0}
+
+.activity-week-cols{display:flex;gap:3px}
+.activity-week{display:flex;flex-direction:column;gap:3px}
+/* cells */
+.ac{width:12px;height:12px;border-radius:2px;background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.035);transition:transform .12s ease,box-shadow .12s ease;cursor:default;position:relative;flex-shrink:0}
+.ac:hover{transform:scale(1.5);z-index:20;border-color:rgba(255,255,255,0.35)!important}
+.ac.ghost{visibility:hidden}
+.ac.l0{background:rgba(255,255,255,0.045);border-color:rgba(255,255,255,0.035)}
+.ac.l1{background:rgba(139,92,246,0.22);border-color:rgba(139,92,246,0.28)}
+.ac.l2{background:rgba(139,92,246,0.44);border-color:rgba(139,92,246,0.50)}
+.ac.l3{background:rgba(139,92,246,0.68);border-color:rgba(139,92,246,0.74)}
+.ac.l4{background:#8b5cf6;border-color:#9d72f8;box-shadow:0 0 5px rgba(139,92,246,0.55)}
+.ac.today-cell{outline:2px solid var(--accent-pink);outline-offset:1px;z-index:2}
+/* tooltip */
+.ac::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:rgba(10,10,22,0.97);border:1px solid var(--border);color:var(--text-primary);font-size:.67rem;font-family:var(--font-mono);white-space:nowrap;padding:.22rem .5rem;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .12s ease;z-index:200}
+.ac:hover::after{opacity:1}
+/* bottom bar: legend + yearly summary */
+.activity-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:.8rem;flex-wrap:wrap;gap:.5rem}
+.activity-legend{display:flex;align-items:center;gap:.32rem}
+.al-lbl{font-size:.62rem;color:var(--text-muted)}
+.al-cells{display:flex;gap:3px}
+.al-cell{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+.activity-year-total{font-size:.72rem;color:var(--text-muted);font-family:var(--font-mono)}
+.activity-year-total strong{color:var(--accent-purple);font-weight:700}
+/* stats strip */
+.activity-stats-strip{display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap}
+.ast{display:flex;flex-direction:column;align-items:center;flex:1;min-width:80px;padding:.7rem .5rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-md);border:1px solid var(--border)}
+.ast-val{font-size:1.25rem;font-weight:700;font-family:var(--font-mono);background:var(--grad-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2}
+.ast-lbl{font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-top:.18rem;text-align:center}
+/* month summary below grid */
+.month-summary{display:flex;gap:.35rem;margin-top:.9rem;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.month-summary::-webkit-scrollbar{display:none}
+.ms-chip{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.38rem .5rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-sm);min-width:46px;transition:var(--transition)}
+.ms-chip.has-data{border-color:rgba(139,92,246,0.25);background:rgba(139,92,246,0.06)}
+.ms-chip:hover{border-color:rgba(139,92,246,0.4)}
+.ms-chip-bar{width:100%;height:22px;display:flex;align-items:flex-end;justify-content:center}
+.ms-chip-fill{width:18px;border-radius:2px 2px 0 0;background:var(--accent-purple);min-height:2px;transition:height .3s ease}
+.ms-chip-name{font-size:.58rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+.ms-chip-count{font-size:.62rem;font-family:var(--font-mono);font-weight:700;color:var(--accent-purple)}
 .mode-favorites{display:flex;flex-direction:column;gap:.7rem;margin-bottom:2rem}
 .mode-row{display:flex;align-items:center;gap:.7rem;padding:.82rem .95rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md)}
 .mode-row-icon{width:26px;height:26px;flex-shrink:0}
@@ -471,8 +529,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
         </div>
       </div>
       <div class="profile-stats" id="profile-stats"></div>
-      <div class="section-header" style="margin-bottom:.7rem"><div class="section-title">30-Day Activity</div></div>
-      <div class="streak-chart" id="streak-chart"></div>
+      <div class="activity-section" id="activity-section">
+        <!-- Rendered by renderActivityGrid() -->
+      </div>
       <div class="section-header" style="margin-bottom:.7rem;margin-top:1.5rem"><div class="section-title">Game History</div></div>
       <div class="mode-favorites" id="mode-favorites"></div>
       <div class="section-header" style="margin-bottom:.7rem;margin-top:1.5rem"><div class="section-title">Achievements (<span id="ach-count">0</span>/62)</div></div>
@@ -708,7 +767,7 @@ const ACHIEVEMENTS=[
 
 /* ═══════ STATE ═══════ */
 let STATE=loadState(),GS=null,TI=null,soundOn=true,paused=false;
-function defState(){return {xp:0,level:1,gamesPlayed:0,bestScore:0,bestStreak:0,totalScore:0,totalCorrect:0,totalAnswered:0,achievements:[],currentStreak:0,dailyDone:null,dailyTotal:0,modeScores:{},modeGames:{},activity:Array(30).fill(0),hintlessGames:0,palindromeCorrect:0,compoundCorrect:0,prefixCorrect:0,suffixCorrect:0,soundsLikeCorrect:0,sharedResult:false,usedApi:false,playedDays:[],streakOf5:0};}
+function defState(){return {xp:0,level:1,gamesPlayed:0,bestScore:0,bestStreak:0,totalScore:0,totalCorrect:0,totalAnswered:0,achievements:[],currentStreak:0,dailyDone:null,dailyTotal:0,modeScores:{},modeGames:{},activity:Array(30).fill(0),activityMap:{},hintlessGames:0,palindromeCorrect:0,compoundCorrect:0,prefixCorrect:0,suffixCorrect:0,soundsLikeCorrect:0,sharedResult:false,usedApi:false,playedDays:[],streakOf5:0,longestStreak:0,totalDaysPlayed:0};}
 function loadState(){try{const s={...defState(),...JSON.parse(localStorage.getItem('wpsycho_v4')||'{}')};if(!Array.isArray(s.activity))s.activity=Array(30).fill(0);return s;}catch{return defState();}}
 function saveState(){try{localStorage.setItem('wpsycho_v4',JSON.stringify(STATE));}catch{}}
 /* ═══════ UTILS ═══════ */
@@ -916,6 +975,17 @@ function endGame(){
   STATE.modeScores[gs.mode]=Math.max(STATE.modeScores[gs.mode]||0,gs.score);
   STATE.modeGames[gs.mode]=(STATE.modeGames[gs.mode]||0)+1;
   STATE.activity=STATE.activity||Array(30).fill(0);STATE.activity.shift();STATE.activity.push(gs.correct);
+  // Per-date map for LeetCode grid
+  if(!STATE.activityMap)STATE.activityMap={};
+  const todayK=todayKey();
+  STATE.activityMap[todayK]=(STATE.activityMap[todayK]||0)+gs.correct;
+  // Trim map to last 120 days
+  const cutoff=Date.now()-120*24*3600*1000;
+  Object.keys(STATE.activityMap).forEach(k=>{const[yr,mo,dy]=k.split('-').map(Number);if(new Date(yr,mo,dy)<cutoff)delete STATE.activityMap[k];});
+  // Update longest streak
+  STATE.longestStreak=Math.max(STATE.longestStreak||0,STATE.bestStreak);
+  // Count total unique days played
+  STATE.totalDaysPlayed=Object.keys(STATE.activityMap).length;
   if(gs.mode==='daily'){STATE.dailyDone=todayKey();STATE.dailyTotal=(STATE.dailyTotal||0)+1;}
   STATE.compoundCorrect=(STATE.compoundCorrect||0)+(gs.compoundCorrect||0);
   STATE.prefixCorrect=(STATE.prefixCorrect||0)+(gs.prefixCorrect||0);
@@ -955,7 +1025,7 @@ function renderProfile(){
   document.getElementById('p-level').textContent=STATE.level;document.getElementById('p-level-name').textContent=lvN(STATE.level);document.getElementById('ach-count').textContent=STATE.achievements.length;
   const wr=STATE.totalAnswered>0?Math.round((STATE.totalCorrect/STATE.totalAnswered)*100):0;const avg=STATE.gamesPlayed>0?Math.round(STATE.totalScore/STATE.gamesPlayed):0;
   document.getElementById('profile-stats').innerHTML=[{val:STATE.gamesPlayed,lbl:'Games',c:'var(--accent-purple)'},{val:wr+'%',lbl:'Win Rate',c:'var(--accent-green)'},{val:avg,lbl:'Avg Score',c:'var(--accent-cyan)'},{val:STATE.bestStreak+'x',lbl:'Best Streak',c:'var(--accent-amber)'},{val:STATE.bestScore,lbl:'Best Score',c:'var(--accent-pink)'},{val:STATE.xp+' XP',lbl:'Total XP',c:'var(--accent-purple)'},{val:STATE.totalCorrect,lbl:'Correct',c:'var(--accent-green)'},{val:STATE.achievements.length+'/62',lbl:'Achievements',c:'var(--accent-amber)'}].map(({val,lbl,c})=>`<div class="p-stat"><div class="ps-val" style="background:linear-gradient(135deg,${c},var(--accent-pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${val}</div><div class="ps-lbl">${lbl}</div></div>`).join('');
-  const mx=Math.max(...(STATE.activity||[1]),1);document.getElementById('streak-chart').innerHTML=(STATE.activity||Array(30).fill(0)).map(v=>`<div class="streak-bar ${v>0?'active':''}" style="height:${Math.max(8,(v/mx)*100)}%"></div>`).join('');
+  renderActivityGrid();
   const ml=GAME_MODES.filter(m=>(STATE.modeGames||{})[m.id]).sort((a,b)=>(STATE.modeGames[b.id]||0)-(STATE.modeGames[a.id]||0)).slice(0,8);
   const mg=Math.max(...ml.map(m=>STATE.modeGames[m.id]||0),1);
   document.getElementById('mode-favorites').innerHTML=ml.length>0?ml.map(m=>`<div class="mode-row"><span class="mode-row-icon">${I[m.ik]||I.star}</span><span class="mode-row-name">${m.name}</span><div class="mode-bar-wrap"><div class="mode-bar-track"><div class="mode-bar-fill" style="width:${((STATE.modeGames[m.id]||0)/mg)*100}%"></div></div></div><span class="mode-row-score">${STATE.modeScores[m.id]||0}</span></div>`).join(''):'<div style="color:var(--text-muted);font-size:.88rem;padding:.9rem">Play some games to see your history!</div>';
@@ -1201,6 +1271,224 @@ function checkFirstRun() {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   365-DAY LEETCODE-STYLE ACTIVITY CALENDAR WITH YEAR SWITCHER
+   ═══════════════════════════════════════════════════════════════════ */
+
+let _activityYear = new Date().getFullYear(); // currently viewed year
+
+function renderActivityGrid(year) {
+  year = year || _activityYear;
+  _activityYear = year;
+
+  const container = document.getElementById('activity-section');
+  if (!container) return;
+
+  const map = STATE.activityMap || {};
+  const todayReal = new Date();
+  todayReal.setHours(0,0,0,0);
+  const todayKey_ = `${todayReal.getFullYear()}-${todayReal.getMonth()}-${todayReal.getDate()}`;
+
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const DAYS_FULL = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  function dk(date) { return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`; }
+  function fmt(date) { return `${DAYS_FULL[date.getDay()]} ${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`; }
+
+  // Determine visible year range
+  const isCurrentYear = (year === todayReal.getFullYear());
+
+  // Grid: Jan 1 of the year → Dec 31 (or today if current year)
+  const gridStart = new Date(year, 0, 1);  // Jan 1
+  // Roll back to the Sunday of that week
+  gridStart.setDate(gridStart.getDate() - gridStart.getDay());
+
+  const gridEnd = isCurrentYear ? new Date(todayReal) : new Date(year, 11, 31);
+
+  // Roll gridEnd forward to Saturday of its week
+  const endDayOfWeek = gridEnd.getDay();
+  if (endDayOfWeek < 6) gridEnd.setDate(gridEnd.getDate() + (6 - endDayOfWeek));
+
+  // Build week columns
+  const weeks = [];
+  const cur = new Date(gridStart);
+  while (cur <= gridEnd) {
+    const week = [];
+    for (let d = 0; d < 7; d++) {
+      week.push(new Date(cur));
+      cur.setDate(cur.getDate() + 1);
+    }
+    weeks.push(week);
+  }
+
+  // Year-scoped max for intensity
+  const yearPrefix = String(year) + '-';
+  // Our keys are "YYYY-M-D" so check if startsWith year
+  function isYearKey(k) {
+    const parts = k.split('-');
+    return parseInt(parts[0]) === year;
+  }
+  const yearVals = Object.entries(map).filter(([k])=>isYearKey(k)).map(([,v])=>v);
+  const maxVal = yearVals.length ? Math.max(...yearVals) : 1;
+
+  function intensity(v) {
+    if (!v) return 'l0';
+    const r = v / maxVal;
+    if (r <= 0.12) return 'l1';
+    if (r <= 0.36) return 'l2';
+    if (r <= 0.68) return 'l3';
+    return 'l4';
+  }
+
+  // Month label positions — track which week each month starts in
+  const monthPos = {};  // month index → week index
+  weeks.forEach((week, wi) => {
+    week.forEach(day => {
+      if (day.getFullYear() === year && day.getDate() === 1) {
+        monthPos[day.getMonth()] = wi;
+      }
+    });
+  });
+  // Also mark month 0 at week 0 if Jan 1 is in first week
+  if (monthPos[0] === undefined) monthPos[0] = 0;
+
+  // Build month labels HTML (proportional widths)
+  let monthsHTML = '';
+  const CELL = 15; // 12px cell + 3px gap
+  const monthEntries = Object.entries(monthPos).sort((a,b)=>+a[0]-+b[0]);
+  monthEntries.forEach(([mi, wi], idx) => {
+    const nextWi = (monthEntries[idx+1] ? monthEntries[idx+1][1] : weeks.length);
+    const wSpan = Math.max(0, nextWi - wi);
+    if (wSpan < 1) return;
+    monthsHTML += `<div class="activity-month-lbl" style="width:${wSpan*CELL}px">${MONTHS[+mi]}</div>`;
+  });
+
+
+
+  // Build week columns
+  const Jan1 = new Date(year, 0, 1);
+  const Dec31 = new Date(year, 11, 31);
+
+  const weeksHTML = weeks.map(week =>
+    `<div class="activity-week">${week.map(day => {
+      const inYear = day >= Jan1 && day <= Dec31;
+      const inFuture = day > todayReal;
+      if (!inYear || inFuture) {
+        return `<div class="ac ghost"></div>`;
+      }
+      const key = dk(day);
+      const v = map[key] || 0;
+      const cls = intensity(v);
+      const isToday = key === todayKey_ ? ' today-cell' : '';
+      const tip = v > 0
+        ? `${fmt(day)}: ${v} correct answer${v!==1?'s':''}`
+        : `${fmt(day)}: no activity`;
+      return `<div class="ac ${cls}${isToday}" data-tip="${tip}"></div>`;
+    }).join('')}</div>`
+  ).join('');
+
+  // ── Stats ──
+  // Current day streak (backwards from today)
+  let dayStreak = 0;
+  const check = new Date(todayReal);
+  while (true) {
+    const k = dk(check);
+    if (map[k] && map[k] > 0) { dayStreak++; check.setDate(check.getDate()-1); }
+    else break;
+  }
+
+  // Longest streak ever
+  const longestStreak = STATE.longestStreak || STATE.bestStreak || 0;
+
+  // Year total correct
+  const yearTotal = yearVals.reduce((a,b)=>a+b, 0);
+
+  // Year active days
+  const yearActiveDays = yearVals.filter(v=>v>0).length;
+
+  // All-time active days
+  const allDays = Object.keys(map).length;
+
+  // ── Month mini-bars ──
+  const monthTotals = Array(12).fill(0);
+  const monthDays = Array(12).fill(0);
+  Object.entries(map).forEach(([key, v]) => {
+    const parts = key.split('-');
+    if (parseInt(parts[0]) === year) {
+      const mo = parseInt(parts[1]);
+      monthTotals[mo] += v;
+      if (v > 0) monthDays[mo]++;
+    }
+  });
+  const maxMonthTotal = Math.max(...monthTotals, 1);
+  const monthBarHTML = monthTotals.map((total, mi) => {
+    const height = Math.max(2, Math.round((total / maxMonthTotal) * 22));
+    const hasData = total > 0;
+    return `<div class="ms-chip ${hasData?'has-data':''}" title="${MONTHS[mi]}: ${total} correct on ${monthDays[mi]} day${monthDays[mi]!==1?'s':''}">
+      <div class="ms-chip-bar"><div class="ms-chip-fill" style="height:${height}px"></div></div>
+      <div class="ms-chip-name">${MONTHS[mi]}</div>
+      ${hasData ? `<div class="ms-chip-count">${total}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  // ── Year switcher tabs ──
+  // Show all years that have data + current year
+  const yearsWithData = [...new Set(
+    Object.keys(map).map(k=>parseInt(k.split('-')[0])).filter(y=>!isNaN(y))
+  )];
+  if (!yearsWithData.includes(todayReal.getFullYear())) yearsWithData.push(todayReal.getFullYear());
+  yearsWithData.sort((a,b)=>b-a); // newest first
+
+  const yearTabsHTML = yearsWithData.map(y =>
+    `<div class="year-tab ${y===year?'active':''}" onclick="renderActivityGrid(${y})">${y}</div>`
+  ).join('');
+
+  // ── Legend ──
+  const legendHTML = `
+    <div class="activity-legend">
+      <span class="al-lbl">Less</span>
+      <div class="al-cells">
+        <div class="al-cell l0" style="background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.035)"></div>
+        <div class="al-cell l1" style="background:rgba(139,92,246,0.22);border-radius:2px"></div>
+        <div class="al-cell l2" style="background:rgba(139,92,246,0.44);border-radius:2px"></div>
+        <div class="al-cell l3" style="background:rgba(139,92,246,0.68);border-radius:2px"></div>
+        <div class="al-cell l4" style="background:#8b5cf6;border-radius:2px"></div>
+      </div>
+      <span class="al-lbl">More</span>
+    </div>`;
+
+  container.innerHTML = `
+    <div class="activity-top-bar">
+      <div class="activity-title">Activity</div>
+      <div class="activity-controls">
+        ${dayStreak > 0 ? `<div class="activity-streak-badge"><svg viewBox="0 0 24 24"><path d="M12 2c0 0-1 5-5 7s-5 5-5 5 3 0 5-1-1 5 5 9c6-4 4-10 5-9s5 1 5 1-3-3-5-5-5-7-5-7z"/></svg>${dayStreak}d streak</div>` : ''}
+        <div class="year-tabs">${yearTabsHTML}</div>
+      </div>
+    </div>
+
+    <div class="activity-grid-card">
+      <div class="activity-grid-inner">
+        <div class="activity-months-row" style="padding-left:27px">${monthsHTML}</div>
+        <div class="activity-body">
+          <div class="activity-week-cols">${weeksHTML}</div>
+        </div>
+        <div class="activity-bottom">
+          ${legendHTML}
+          <div class="activity-year-total"><strong>${yearActiveDays}</strong> active day${yearActiveDays!==1?'s':''} in ${year} &nbsp;·&nbsp; <strong>${yearTotal}</strong> correct answer${yearTotal!==1?'s':''}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="month-summary">${monthBarHTML}</div>
+
+    <div class="activity-stats-strip">
+      <div class="ast"><div class="ast-val">${dayStreak}</div><div class="ast-lbl">Current Streak</div></div>
+      <div class="ast"><div class="ast-val">${longestStreak}</div><div class="ast-lbl">Longest Streak</div></div>
+      <div class="ast"><div class="ast-val">${yearActiveDays}</div><div class="ast-lbl">${year} Active Days</div></div>
+      <div class="ast"><div class="ast-val">${allDays}</div><div class="ast-lbl">Total Days</div></div>
+      <div class="ast"><div class="ast-val">${yearTotal}</div><div class="ast-lbl">${year} Correct</div></div>
+    </div>`;
+}
 init();
 checkFirstRun();
 </script>
