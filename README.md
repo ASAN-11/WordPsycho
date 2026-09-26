@@ -1,3 +1,5 @@
+![homepage](image-1.png)
+
 # 🧠 WordPsycho
 
 > **A modern browser-based word-game arcade built for fast thinking, vocabulary, pattern recognition, and word-solving skills.**
